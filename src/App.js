@@ -2,23 +2,13 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import Navbar from './components/Navbar';
 import HomePage from "./pages/Homepage"
 import TripTable from "./pages/TripTable";
 import EditTrip from "./pages/EditTrip";
 import AddTrip from "./pages/AddTrip"; // New page for adding trips
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1a73e8',
-    },
-    secondary: {
-      main: '#ff4081',
-    },
-  },
-});
+import theme from './theme';
 
 function App() {
   return (

@@ -59,6 +59,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@babel/plugin-proposal-private-property-in-object@^7.21.11",
         "npm:@emotion/react@^11.13.3",
         "npm:@emotion/styled@^11.13.0",
         "npm:@mui/icons-material@^6.1.2",
@@ -68,6 +69,7 @@
         "npm:@testing-library/user-event@^13.5.0",
         "npm:axios@^1.7.7",
         "npm:dotenv@^16.4.5",
+        "npm:material-react-table@^3.0.1",
         "npm:mongodb@^6.9.0",
         "npm:react-dom@^18.3.1",
         "npm:react-router-dom@^6.26.2",
