@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import TripCard from "../components/TripCard";
 import { getTrips } from "../utils/api";
+import SwiperCarousel from "../components/SwiperCarousel/SwiperCarousel";
 
 const HomePage = () => {
   const [trips, setTrips] = useState([]);
@@ -35,7 +36,7 @@ const HomePage = () => {
         like Dzukou Valley, Haflong, and Mawryngkhang. Join us for thrilling
         experiences!
       </Typography>
-
+      <SwiperCarousel />
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
           <CircularProgress />
