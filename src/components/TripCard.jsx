@@ -1,4 +1,6 @@
+// TripCard.js
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -10,6 +12,11 @@ import {
 
 const TripCard = ({ trip }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/itinerary/${trip._id}`);
+  };
 
   return (
     <Card
@@ -17,8 +24,17 @@ const TripCard = ({ trip }) => {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        boxShadow: theme.components.MuiCard.styleOverrides.root.boxShadow,
+        boxShadow: `0 4px 8px ${theme.palette.primary.light}`,
+        border: `1px solid ${theme.palette.primary.main}`,
+        borderRadius: "12px",
+        transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+        "&:hover": {
+          transform: "translateY(-5px)",
+          boxShadow: `0 6px 12px ${theme.palette.primary.main}`,
+          cursor: "pointer",
+        },
       }}
+      onClick={handleCardClick}
     >
       <CardMedia
         component="img"

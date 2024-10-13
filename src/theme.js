@@ -7,6 +7,11 @@ const theme = createTheme({
             light: '#26a69a',
             dark: '#00695c',
         },
+        coral: {
+            main: '#ff7f50', // Coral-like color
+            light: '#ff9e70',
+            dark: '#ff5c30',
+        },
         secondary: {
             main: '#ff5722', // Complementary color 1 - a warm orange
             light: '#ff8a50',
