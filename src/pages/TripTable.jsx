@@ -88,10 +88,20 @@ const TripTable = () => {
         variant="contained"
         color="primary"
         startIcon={<AddIcon />}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mr: 5 }}
         onClick={() => navigate("/add")}
       >
         Add Trip
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        sx={{ mb: 2 }}
+        onClick={() => navigate("/add/itinerary")}
+      >
+        Add Itinerary
       </Button>
       <MaterialReactTable columns={columns} data={trips} />
     </Box>

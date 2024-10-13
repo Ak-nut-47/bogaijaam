@@ -142,7 +142,14 @@ const Navbar = () => {
 
     return (
         <>
-            <AppBar position="static" sx={{ bgcolor: theme.palette.primary.main }}>
+            <AppBar
+                position="sticky"
+                sx={{
+                    bgcolor: theme.palette.primary.main,
+                    top: 0, // Ensures it sticks at the top
+                    zIndex: 2 // Ensures it's above other content, you can adjust the value
+                }}
+            >
                 <Toolbar>
                     <IconButton
                         edge="start"
