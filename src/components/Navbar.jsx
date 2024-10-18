@@ -23,12 +23,15 @@ import TerrainIcon from '@mui/icons-material/Terrain';
 import PublicIcon from '@mui/icons-material/Public';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import LoginIcon from '@mui/icons-material/Login';
+import SignInSignUpModal from './SignInSignUpModal';
 
 const Navbar = () => {
     const theme = useTheme();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [adventureOpen, setAdventureOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [open, setOpen] = useState(false);
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -49,6 +52,9 @@ const Navbar = () => {
         event.stopPropagation();
         setAdventureOpen(!adventureOpen);
     };
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     const drawerItems = (
         <Box
@@ -191,10 +197,16 @@ const Navbar = () => {
                             <MenuItem onClick={handleAdventureClose} component={Link} to="/outdoor-explorations"><ExploreIcon sx={{ mr: 1 }} /> Outdoor Explorations</MenuItem>
                             <MenuItem onClick={handleAdventureClose} component={Link} to="/cave-exploration"><HikingIcon sx={{ mr: 1 }} /> Cave Exploration</MenuItem>
                         </Menu>
+                        <Button
+                            color="inherit"
+                            onClick={handleOpen}
+                            startIcon={<LoginIcon />}
+                        >
+                        </Button>
                     </Box>
                 </Toolbar>
             </AppBar>
-
+            <SignInSignUpModal open={open} handleClose={handleClose} />
             <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
                 {drawerItems}
             </Drawer>

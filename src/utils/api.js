@@ -3,8 +3,15 @@ import axios from 'axios';
 
 // Fetch all trips
 export const getTrips = async () => {
+    // Try to get cached trips from sessionStorage
+    const cachedTrips = sessionStorage.getItem('trips');
+    if (cachedTrips) {
+        return JSON.parse(cachedTrips); // Return cached data if it exists
+    }
     try {
         const response = await axios.get('/.netlify/functions/getTrips');
+        // Cache the fetched trips in sessionStorage
+        sessionStorage.setItem('trips', JSON.stringify(response.data));
         return response.data;
     } catch (error) {
         console.error('Failed to fetch trips', error);
