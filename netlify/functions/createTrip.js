@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
 
     try {
         const db = await connectToDatabase(process.env.MONGO_URI);
-        const tripsCollection = db.collection('trips');
+        const tripsCollection = db.collection('tours');
 
         const result = await tripsCollection.insertOne({
             tripName,

@@ -1,24 +1,78 @@
 // src/pages/AddTrip.js
 import React, { useState } from "react";
-import { TextField, Button, Box, Grid, MenuItem } from "@mui/material";
-import { addTrip } from "../utils/api"; // API function for adding trips
+import {
+  TextField,
+  Button,
+  Box,
+  Grid,
+  MenuItem,
+  Autocomplete,
+  Alert,
+  Snackbar,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { addTrip } from "../utils/api";
 
+const indianStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Lakshadweep",
+  "Puducherry",
+];
 const AddTrip = () => {
-  const [tripData, setTripData] = useState({
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const initialState = {
     tripName: "",
-    location: { state: "", country: "", nearestCity: "" },
+    location: { state: "", country: "India", nearestCity: "" },
     difficultyLevel: "",
     duration: { days: "", nights: "" },
     price: { currency: "INR", amount: 0 },
-    activities: [],
+    activities: [""],
     itinerary: [{ day: 1, description: "" }],
-    inclusions: [],
-    exclusions: [],
-    imageUrls: [],
-    startDates: [],
+    inclusions: [""],
+    exclusions: [""],
+    imageUrls: [""],
+    startDates: [null],
     availability: { totalSlots: 0, availableSlots: 0 },
     coordinates: { latitude: 0, longitude: 0 },
-  });
+  };
+  const [tripData, setTripData] = useState(initialState);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,10 +98,76 @@ const AddTrip = () => {
     }));
   };
 
+  const handleArrayFieldChange = (index, key, value) => {
+    const updatedArray = [...tripData[key]];
+    updatedArray[index] = value;
+    setTripData((prevData) => ({
+      ...prevData,
+      [key]: updatedArray,
+    }));
+  };
+
+  const handleAutocompleteChange = (event, value) => {
+    setTripData((prevData) => ({
+      ...prevData,
+      location: { ...prevData.location, state: value },
+    }));
+  };
+
+  const addField = (key) => {
+    setTripData((prevData) => ({
+      ...prevData,
+      [key]: [...prevData[key], ""],
+    }));
+  };
+
+  const removeField = (index, key) => {
+    const updatedArray = tripData[key].filter((_, idx) => idx !== index);
+    setTripData((prevData) => ({
+      ...prevData,
+      [key]: updatedArray,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addTrip(tripData);
-    // Redirect back to the trips table or show success message
+    try {
+      const response = await addTrip(tripData);
+      if (response.message === "Trip created successfully") {
+        setSnackbar({
+          open: true,
+          message: response.message,
+          severity: "success",
+        });
+        // Reset form fields on success
+        setTripData(initialState);
+      } else {
+        setSnackbar({
+          open: true,
+          message: response.message,
+          severity: "error",
+        });
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "An error occurred",
+        severity: "error",
+      });
+    }
+  };
+
+  const validateUrl = (url) => {
+    const urlPattern = new RegExp(
+      "^(https?:\\/\\/)?" +
+        "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" +
+        "((\\d{1,3}\\.){3}\\d{1,3}))" +
+        "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" +
+        "(\\?[;&a-z\\d%_.~+=-]*)?" +
+        "(\\#[-a-z\\d_]*)?$",
+      "i"
+    );
+    return !!urlPattern.test(url);
   };
 
   return (
@@ -63,13 +183,15 @@ const AddTrip = () => {
           />
         </Grid>
 
+        {/* Autocomplete for State */}
         <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="State"
-            name="state"
+          <Autocomplete
+            options={indianStates}
             value={tripData.location.state}
-            onChange={handleLocationChange}
+            onChange={handleAutocompleteChange}
+            renderInput={(params) => (
+              <TextField {...params} label="State" fullWidth />
+            )}
           />
         </Grid>
 
@@ -153,14 +275,25 @@ const AddTrip = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Activities (comma separated)"
-            name="activities"
-            value={tripData.activities.join(", ")}
-            onChange={(e) => handleArrayChange(e, "activities")}
-          />
+        {/* Dynamic fields for activities */}
+        <Grid item xs={12}>
+          <label>Activities</label>
+          {tripData.activities.map((activity, index) => (
+            <Box key={index} sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                fullWidth
+                label={`Activity ${index + 1}`}
+                value={activity}
+                onChange={(e) =>
+                  handleArrayFieldChange(index, "activities", e.target.value)
+                }
+              />
+              <Button onClick={() => removeField(index, "activities")}>
+                -
+              </Button>
+            </Box>
+          ))}
+          <Button onClick={() => addField("activities")}>+ Add Activity</Button>
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -183,24 +316,52 @@ const AddTrip = () => {
           />
         </Grid>
 
+        {/* Dynamic fields for image URLs */}
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Image URLs (comma separated)"
-            name="imageUrls"
-            value={tripData.imageUrls.join(", ")}
-            onChange={(e) => handleArrayChange(e, "imageUrls")}
-          />
+          <label>Image URLs</label>
+          {tripData.imageUrls.map((imageUrl, index) => (
+            <Box key={index} sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                fullWidth
+                label={`Image URL ${index + 1}`}
+                value={imageUrl}
+                error={!validateUrl(imageUrl) && imageUrl !== ""}
+                helperText={
+                  !validateUrl(imageUrl) && imageUrl !== "" ? "Invalid URL" : ""
+                }
+                onChange={(e) =>
+                  handleArrayFieldChange(index, "imageUrls", e.target.value)
+                }
+              />
+              <Button onClick={() => removeField(index, "imageUrls")}>-</Button>
+            </Box>
+          ))}
+          <Button onClick={() => addField("imageUrls")}>+ Add Image URL</Button>
         </Grid>
 
+        {/* Date Picker for start dates */}
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Start Dates (comma separated)"
-            name="startDates"
-            value={tripData.startDates.join(", ")}
-            onChange={(e) => handleArrayChange(e, "startDates")}
-          />
+          <label>Start Dates</label>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            {tripData.startDates.map((startDate, index) => (
+              <Box key={index} sx={{ display: "flex", gap: 1 }}>
+                <DatePicker
+                  label={`Start Date ${index + 1}`}
+                  value={startDate}
+                  onChange={(date) =>
+                    handleArrayFieldChange(index, "startDates", date)
+                  }
+                  renderInput={(params) => <TextField {...params} />}
+                />
+                <Button onClick={() => removeField(index, "startDates")}>
+                  -
+                </Button>
+              </Box>
+            ))}
+            <Button onClick={() => addField("startDates")}>
+              + Add Start Date
+            </Button>
+          </LocalizationProvider>
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -281,6 +442,19 @@ const AddTrip = () => {
           </Button>
         </Grid>
       </Grid>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

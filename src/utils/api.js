@@ -63,7 +63,7 @@ export const deleteTrip = async (id) => {
 // Add a new trip
 export const addTrip = async (newTrip) => {
     try {
-        const response = await axios.post(`/.netlify/functions/addTrip`, newTrip);
+        const response = await axios.post(`/.netlify/functions/createTrip`, newTrip);
         return response.data;
     } catch (error) {
         console.error('Failed to add new trip', error);

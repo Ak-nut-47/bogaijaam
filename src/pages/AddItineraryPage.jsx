@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Grid,
-  Typography,
-  Paper,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { TextField, Button, Typography, Paper } from "@mui/material";
 
 const AddItineraryPage = () => {
   const [tripData, setTripData] = useState({
