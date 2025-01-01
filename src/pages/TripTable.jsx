@@ -80,6 +80,33 @@ const TripTable = () => {
         </Box>
       ),
     },
+    {
+      header: "Add Itinerary For Trip",
+      id: "itinerary",
+      size: 250,
+
+      Cell: ({ row }) => {
+        const navigate = useNavigate();
+
+        const handleAddItinerary = () => {
+          navigate("/add/itinerary", { state: { tripId: row.original._id } }); // Pass data in state
+        };
+
+        return (
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              sx={{ mb: 2 }}
+              onClick={handleAddItinerary}
+            >
+              Add Itinerary
+            </Button>
+          </Box>
+        );
+      },
+    },
   ];
 
   return (
@@ -94,15 +121,6 @@ const TripTable = () => {
         Add Trip
       </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        sx={{ mb: 2 }}
-        onClick={() => navigate("/add/itinerary")}
-      >
-        Add Itinerary
-      </Button>
       <MaterialReactTable columns={columns} data={trips} />
     </Box>
   );

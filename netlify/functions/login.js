@@ -1,5 +1,5 @@
 const connectToDatabase = require('./mongodb');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Replace with bcryptjs
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken
 
 exports.handler = async (event, context) => {

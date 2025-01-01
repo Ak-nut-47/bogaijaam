@@ -13,8 +13,9 @@ exports.handler = async (event, context) => {
 
         if (id) {
             // If an id is provided, find the itinerary by its id
-            const itinerary = await itinerariesCollection.findOne({ _id: ObjectId(id) });
-
+            // const itinerary = await itinerariesCollection.findOne({ _id: ObjectId(id) });
+            const itinerary = await itinerariesCollection.findOne({ tripId: id });
+            console.log("Itinerary is _____", itinerary)
             if (!itinerary) {
                 return {
                     statusCode: 404,

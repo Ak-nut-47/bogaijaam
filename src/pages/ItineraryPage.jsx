@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -20,6 +21,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import img from "../assets/SliderImages/swiper1.webp";
+import { useParams } from "react-router-dom";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(3),
@@ -40,26 +42,27 @@ const ErrorContainer = styled(Box)(({ theme }) => ({
 }));
 
 const ItineraryPage = () => {
+  const { id } = useParams(); // Extract id from URL parameters/
+
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const img = require("../../assets/SliderImages/swiper9.webp")
-
+  console.log("Trip Id is ________", id);
   useEffect(() => {
+    console.log("Use Efect Ran");
     const fetchItinerary = async () => {
       try {
-        // Assuming you have a function to get the current tripId
-        const tripId = "5f9f1b9b9d3f2a1b1c1d1e1f";
         const response = await axios.get(
-          `/.netlify/functions/getItinerary?tripId=${tripId}`
+          `/.netlify/functions/getItinerary?id=${id}` // Use id from params
         );
         console.log("Response Data is ----", response.data);
-        setItinerary(response.data[0]);
-        setLoading(false);
+        // setItinerary(response.data[0]); // Assuming the first element is the itinerary
+        setItinerary(response.data); // Assuming the first element is the itinerary
       } catch (err) {
         console.error("Failed to fetch itinerary", err);
         setError("Failed to load itinerary. Please try again later.");
-        setLoading(false);
+      } finally {
+        setLoading(false); // Always set loading to false after fetching or error
       }
     };
 

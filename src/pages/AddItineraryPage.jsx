@@ -1,9 +1,18 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Paper } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const AddItineraryPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tripId = location.state?.tripId; // Access data from state
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const [tripData, setTripData] = useState({
-    tripId: "",
+    // tripId: "",
+    tripId: tripId,
     lastUpdated: "",
     overview: {
       title: "",
@@ -56,6 +65,10 @@ const AddItineraryPage = () => {
     imageUrls: [""],
   });
 
+  const handleGoBack = () => {
+    navigate(-1); // Navigate back to the previous page in the history stack
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setTripData({ ...tripData, [name]: value });
@@ -80,6 +93,13 @@ const AddItineraryPage = () => {
       <Typography variant="h4" gutterBottom>
         Trip Details
       </Typography>
+      <Button
+        variant="contained"
+        onClick={handleGoBack}
+        startIcon={<ArrowBackIcon />}
+      >
+        Go Back
+      </Button>
       <form onSubmit={handleSubmit}>
         {/* Trip ID */}
         <TextField
@@ -89,11 +109,12 @@ const AddItineraryPage = () => {
           onChange={handleChange}
           fullWidth
           margin="normal"
+          disabled
         />
 
         {/* Last Updated */}
         <TextField
-          label="Last Updated"
+          // label="Last Updated"
           type="datetime-local"
           name="lastUpdated"
           value={tripData.lastUpdated}

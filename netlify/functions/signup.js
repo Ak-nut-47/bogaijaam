@@ -1,5 +1,5 @@
 const connectToDatabase = require('./mongodb');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); // Replace with bcryptjs
 
 exports.handler = async (event, context) => {
     try {
@@ -16,13 +16,11 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, body: JSON.stringify({ error: 'Email, password, and username are required.' }) };
         }
 
-
         const existingUser = await usersCollection.findOne({ email: email.toLowerCase() });
 
         if (existingUser) {
             return { statusCode: 400, body: JSON.stringify({ error: 'User already exists.' }) };
         }
-
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
