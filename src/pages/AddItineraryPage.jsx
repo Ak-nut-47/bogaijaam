@@ -1,11 +1,15 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Paper } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useTheme } from "@emotion/react";
+import { TealCard } from "./EditTrip";
 
 const AddItineraryPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
   const tripId = location.state?.tripId; // Access data from state
   useLayoutEffect(() => {
     window.scrollTo(0, 0); // Scroll to the top of the page
@@ -86,6 +90,113 @@ const AddItineraryPage = () => {
     event.preventDefault();
     console.log(tripData);
     // Handle form submission, e.g., API call to save data
+  };
+
+  const handleArrayChange = (e) => {
+    const { name, value } = e.target;
+    const arrayName = name.split(".").pop(); // For example: 'highlights'
+
+    setTripData((prevData) => ({
+      ...prevData,
+      [arrayName]: value.split(",").map((item) => item.trim()),
+    }));
+  };
+
+  const handleAddDay = () => {
+    setTripData((prevData) => ({
+      ...prevData,
+      dailySchedule: [
+        ...prevData.dailySchedule,
+        {
+          day: prevData.dailySchedule.length + 1,
+          date: "",
+          title: "",
+          description: "",
+          activities: [],
+          meals: {
+            breakfast: "",
+            lunch: "",
+            dinner: "",
+          },
+          accommodation: {
+            name: "",
+            type: "",
+            address: "",
+            contactInfo: "",
+          },
+        },
+      ],
+    }));
+  };
+
+  const handleAddActivity = (dayIndex) => {
+    setTripData((prevData) => {
+      const updatedSchedule = [...prevData.dailySchedule];
+      updatedSchedule[dayIndex].activities.push({
+        name: "",
+        description: "",
+        startTime: "",
+        endTime: "",
+        location: { name: "", coordinates: { latitude: 0, longitude: 0 } },
+      });
+      return {
+        ...prevData,
+        dailySchedule: updatedSchedule,
+      };
+    });
+  };
+
+  const handleRemoveActivity = (dayIndex, activityIndex) => {
+    const updatedSchedule = [...tripData.dailySchedule];
+    updatedSchedule[dayIndex].activities.splice(activityIndex, 1);
+    setTripData((prevData) => ({
+      ...prevData,
+      dailySchedule: updatedSchedule,
+    }));
+  };
+
+  const handleRemoveDay = (index) => {
+    const updatedSchedule = [...tripData.dailySchedule];
+    updatedSchedule.splice(index, 1);
+    setTripData((prevData) => ({
+      ...prevData,
+      dailySchedule: updatedSchedule,
+    }));
+  };
+
+  const handleChangeDailySchedule = (event) => {
+    const { name, value } = event.target;
+    const nameParts = name.split(".");
+
+    if (nameParts[0] === "dailySchedule") {
+      const dayIndex = parseInt(nameParts[1]); // This refers to the day index
+      const field = nameParts[2]; // This will refer to the field inside the daily schedule (title, date, description)
+
+      // Handle the changes to day fields (title, description, date)
+      if (field === "title" || field === "date" || field === "description") {
+        const updatedSchedule = [...tripData.dailySchedule];
+        updatedSchedule[dayIndex] = {
+          ...updatedSchedule[dayIndex],
+          [field]: value,
+        };
+
+        setTripData({ ...tripData, dailySchedule: updatedSchedule });
+      }
+
+      // Handle the activities change within the day
+      else if (field.includes("activities")) {
+        const activityIndex = parseInt(nameParts[3]); // Activity index
+        const activityField = nameParts[4]; // Name, description, startTime, endTime
+
+        const updatedSchedule = [...tripData.dailySchedule];
+        updatedSchedule[dayIndex].activities[activityIndex] = {
+          ...updatedSchedule[dayIndex].activities[activityIndex],
+          [activityField]: value,
+        };
+
+        setTripData({ ...tripData, dailySchedule: updatedSchedule });
+      }
+    }
   };
 
   return (
@@ -205,16 +316,128 @@ const AddItineraryPage = () => {
         />
 
         {/* Daily Schedule */}
-        <Typography variant="h6" gutterBottom>
-          Daily Schedule
-        </Typography>
-        {/* Add logic here to dynamically add daily schedule items */}
-        <Button
-          variant="contained"
-          onClick={() => alert("Add Daily Schedule Logic")}
-        >
-          Add Daily Schedule
-        </Button>
+        <TealCard>
+          <Grid item xs={12} p={2}>
+            <Typography variant="h6">Daily Schedule</Typography>
+            {tripData.dailySchedule.map((day, index) => (
+              <Grid
+                container
+                spacing={2}
+                key={index}
+                border={"2px solid teal"}
+                mb={1}
+                p={3}
+              >
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label={`Day ${index + 1} Title`}
+                    name={`dailySchedule[${index}].title`}
+                    value={day.title}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label={`Day ${index + 1} Date`}
+                    name={`dailySchedule[${index}].date`}
+                    type="date"
+                    value={day.date}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label={`Day ${index + 1} Description`}
+                    name={`dailySchedule[${index}].description`}
+                    multiline
+                    rows={4}
+                    value={day.description}
+                    onChange={handleChange}
+                  />
+                </Grid>
+
+                {/* For each activity */}
+                {day.activities.map((activity, activityIndex) => (
+                  <Grid item xs={12} key={activityIndex}>
+                    <Grid container spacing={2}>
+                      <TextField
+                        fullWidth
+                        label={`Activity ${activityIndex + 1} Name`}
+                        name={`dailySchedule[${index}].activities[${activityIndex}].name`}
+                        value={activity.name}
+                        onChange={handleChange}
+                      />
+                      <TextField
+                        fullWidth
+                        label={`Activity ${activityIndex + 1} Description`}
+                        name={`dailySchedule[${index}].activities[${activityIndex}].description`}
+                        value={activity.description}
+                        onChange={handleChange}
+                      />
+                      <TextField
+                        fullWidth
+                        label={`Activity ${activityIndex + 1} Start Time`}
+                        name={`dailySchedule[${index}].activities[${activityIndex}].startTime`}
+                        type="time"
+                        value={activity.startTime}
+                        onChange={handleChange}
+                      />
+                      <TextField
+                        fullWidth
+                        label={`Activity ${activityIndex + 1} End Time`}
+                        name={`dailySchedule[${index}].activities[${activityIndex}].endTime`}
+                        type="time"
+                        value={activity.endTime}
+                        onChange={handleChange}
+                      />
+                      {/* Remove Activity Button */}
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() =>
+                          handleRemoveActivity(index, activityIndex)
+                        }
+                      >
+                        Remove Activity
+                      </Button>
+                    </Grid>
+                  </Grid>
+                ))}
+
+                {/* Button to add new activity */}
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    // color={theme.palette.accent.dark}
+                    color="info"
+                    onClick={() => handleAddActivity(index)}
+                  >
+                    Add Activity
+                  </Button>
+                </Grid>
+
+                {/* Button to remove the day */}
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleRemoveDay(index)}
+                  >
+                    Remove Day
+                  </Button>
+                </Grid>
+              </Grid>
+            ))}
+
+            {/* Button to add a new day */}
+            <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddDay}>
+              Add Day
+            </Button>
+          </Grid>
+        </TealCard>
 
         {/* Inclusions */}
         <Typography variant="h6" gutterBottom>

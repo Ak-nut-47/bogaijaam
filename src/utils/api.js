@@ -43,9 +43,18 @@ export const updateTrip = async (id, updatedTrip) => {
         return response.data;
     } catch (error) {
         console.error(`Failed to update trip with id: ${id}`, error);
-        return null;
+
+        // Ensure error messages from the response are passed back to the caller
+        if (error.response && error.response.data) {
+            // Extract the error message from the response
+            throw new Error(error.response.data.message || 'An error occurred while updating the trip');
+        }
+
+        // Handle case for network errors or other issues
+        throw new Error('An error occurred while updating the trip');
     }
 };
+
 
 // Delete trip by ID
 export const deleteTrip = async (id) => {

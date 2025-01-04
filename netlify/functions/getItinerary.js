@@ -5,7 +5,7 @@ const { ObjectId } = require('mongodb');
 exports.handler = async (event, context) => {
     try {
         const db = await connectToDatabase(process.env.MONGO_URI);
-        const itinerariesCollection = db.collection('itineraries'); // changed to itineraries collection
+        const itinerariesCollection = db.collection('itineraries');
 
         // Check if an id is passed in the query string
         const { id } = event.queryStringParameters || {};

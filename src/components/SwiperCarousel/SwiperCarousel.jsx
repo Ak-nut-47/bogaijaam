@@ -8,18 +8,9 @@ import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import { IconButton, useMediaQuery } from "@mui/material";
 
-// Array of images for dynamic mapping
-const sliderImages = [
-  require("../../assets/SliderImages/swiper1.webp"),
-  require("../../assets/SliderImages/swiper2.webp"),
-  require("../../assets/SliderImages/swiper3.webp"),
-  require("../../assets/SliderImages/swiper4.webp"),
-  require("../../assets/SliderImages/swiper5.webp"),
-  require("../../assets/SliderImages/swiper6.webp"),
-  require("../../assets/SliderImages/swiper7.webp"),
-  require("../../assets/SliderImages/swiper8.webp"),
-  require("../../assets/SliderImages/swiper9.webp"),
-];
+// Custom hook for caching images
+// import { useCachedSliderImages } from './useCachedSliderImages';
+import { useCachedSliderImages } from "../../customHooks/cachedImages";
 
 const SwiperCarousel = () => {
   const swiperRef = React.useRef(null);
@@ -27,6 +18,9 @@ const SwiperCarousel = () => {
   // Define breakpoints using useMediaQuery
   const isXsScreen = useMediaQuery("(max-width:600px)");
   const isSmScreen = useMediaQuery("(max-width:900px)");
+
+  // Get cached images using the custom hook
+  const cachedImages = useCachedSliderImages();
 
   // Determine slidesPerView and coverflow effect based on breakpoints
   const slidesPerView = isXsScreen ? 2 : isSmScreen ? 3 : 4;
@@ -70,7 +64,7 @@ const SwiperCarousel = () => {
         }}
         initialSlide={2}
       >
-        {sliderImages.map((image, index) => (
+        {cachedImages.map((image, index) => (
           <SwiperSlide key={index}>
             <img
               src={image}
