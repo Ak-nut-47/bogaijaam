@@ -12,6 +12,7 @@ import {
 import TripCard from "../components/TripCard";
 import { getTrips } from "../utils/api";
 import SwiperCarousel from "../components/SwiperCarousel/SwiperCarousel";
+import CampsiteHighlight from "../components/CampsiteHighlight";
 
 const HomePage = () => {
   const [trips, setTrips] = useState([]);
@@ -73,6 +74,7 @@ const HomePage = () => {
         experiences!
       </Typography>
       <SwiperCarousel />
+      <CampsiteHighlight />
       <Box sx={{ mt: 5 }}>
         <Box
           sx={{
