@@ -37,7 +37,7 @@ const CampsiteHighlightWithMap = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             textAlign: "center",
-            zIndex: 2,
+            zIndex: 0,
           }}
         >
           <Typography
@@ -48,7 +48,7 @@ const CampsiteHighlightWithMap = () => {
               textShadow: "2px 2px 4px rgba(0, 0, 0, 0.6)",
             }}
           >
-            BOGAJAAM CAMPSITE
+            BOGAIJAAM CAMPSITE
           </Typography>
           <Typography
             variant="h6"
