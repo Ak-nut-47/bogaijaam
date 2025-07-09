@@ -87,10 +87,25 @@ const AddItineraryPage = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(tripData);
-    // Handle form submission, e.g., API call to save data
+    try {
+      const response = await fetch("/.netlify/functions/addItinerary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tripData),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        alert("Trip submitted successfully!");
+        // Optionally redirect or reset form
+        // navigate("/somewhere");
+      } else {
+        alert("Error: " + (result.error || "Failed to submit trip."));
+      }
+    } catch (error) {
+      alert("Network error: " + error.message);
+    }
   };
 
   const handleArrayChange = (e) => {
@@ -984,6 +999,7 @@ const AddItineraryPage = () => {
           name="imageUrls"
           value={tripData.imageUrls.join(", ")}
           onChange={(e) =>
+             
             setTripData((prev) => ({
               ...prev,
               imageUrls: e.target.value.split(",").map((url) => url.trim()),

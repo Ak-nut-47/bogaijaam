@@ -12,6 +12,7 @@ import ItineraryPage from './pages/ItineraryPage';
 import AddItineraryPage from './pages/AddItineraryPage';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </Router>
     </ThemeProvider>
