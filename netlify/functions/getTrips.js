@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
 
         if (id) {
             // If an id is provided, find the trip by its id
-            const trip = await tripsCollection.findOne({ _id: ObjectId(id) });
+            const trip = await tripsCollection.findOne({ _id: new ObjectId(id) });
 
             if (!trip) {
                 return {
@@ -26,8 +26,15 @@ exports.handler = async (event, context) => {
                 body: JSON.stringify(trip),
             };
         } else {
-            // If no id is provided, return all trips
+            // If no id is provided, return all trips WITH their itineraries
             const trips = await tripsCollection.find({}).toArray();
+            const itinerariesCollection = db.collection('itineraries');
+
+            // Attach itinerary to each trip
+            for (let trip of trips) {
+                const itinerary = await itinerariesCollection.findOne({ tripId: trip._id.toString() });
+                trip.itinerary = itinerary || null;
+            }
 
             return {
                 statusCode: 200,

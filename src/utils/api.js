@@ -4,10 +4,10 @@ import axios from 'axios';
 // Fetch all trips
 export const getTrips = async () => {
     // Try to get cached trips from sessionStorage
-    const cachedTrips = sessionStorage.getItem('trips');
-    if (cachedTrips) {
-        return JSON.parse(cachedTrips); // Return cached data if it exists
-    }
+    // const cachedTrips = sessionStorage.getItem('trips');
+    // if (cachedTrips) {
+    //     return JSON.parse(cachedTrips); // Return cached data if it exists
+    // }
     try {
         const response = await axios.get('/.netlify/functions/getTrips');
         // Cache the fetched trips in sessionStorage
@@ -35,10 +35,12 @@ export const getTripById = async (id) => {
 
 // Update trip by ID
 export const updateTrip = async (id, updatedTrip) => {
+    // Remove any accidental 'itinerary' property from the update payload
+    const { itinerary, ...tripData } = updatedTrip || {};
     try {
         const response = await axios.put(`/.netlify/functions/updateTrip`, {
             id,
-            ...updatedTrip
+            ...tripData
         });
         return response.data;
     } catch (error) {
@@ -71,11 +73,53 @@ export const deleteTrip = async (id) => {
 
 // Add a new trip
 export const addTrip = async (newTrip) => {
+    // Remove any accidental 'itinerary' property from the new trip payload
+    const { itinerary, ...tripData } = newTrip || {};
     try {
-        const response = await axios.post(`/.netlify/functions/createTrip`, newTrip);
+        const response = await axios.post(`/.netlify/functions/createTrip`, tripData);
         return response.data;
     } catch (error) {
         console.error('Failed to add new trip', error);
+        return null;
+    }
+};
+
+// Delete itinerary by ID
+export const deleteItinerary = async (itineraryId) => {
+    try {
+        const response = await axios.delete('/.netlify/functions/deleteItinerary', {
+            data: { itineraryId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to delete itinerary with id: ${itineraryId}`, error);
+        return null;
+    }
+};
+
+// Fetch itinerary by ID
+export const getItineraryById = async (itineraryId) => {
+    try {
+        const response = await axios.get('/.netlify/functions/getItinerary', {
+            params: { itineraryId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to fetch itinerary with id: ${itineraryId}`, error);
+        return null;
+    }
+};
+
+// Edit itinerary by ID
+export const editItinerary = async (itineraryId, updatedData) => {
+    try {
+        const response = await axios.put('/.netlify/functions/editItinerary', {
+            itineraryId,
+            ...updatedData
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to update itinerary with id: ${itineraryId}`, error);
         return null;
     }
 };

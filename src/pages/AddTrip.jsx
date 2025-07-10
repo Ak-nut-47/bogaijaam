@@ -64,7 +64,6 @@ const AddTrip = () => {
     duration: { days: "", nights: "" },
     price: { currency: "INR", amount: 0 },
     activities: [""],
-    itinerary: [{ day: 1, description: "" }],
     inclusions: [""],
     exclusions: [""],
     imageUrls: [""],

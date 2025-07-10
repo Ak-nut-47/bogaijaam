@@ -38,7 +38,6 @@ const EditTrip = () => {
     price: { currency: "INR", amount: 0 },
     activities: [],
     imageUrls: [],
-    itinerary: [{ day: 1, description: "" }],
     inclusions: [],
     exclusions: [],
     startDates: [],
@@ -354,6 +353,7 @@ const EditTrip = () => {
               </Grid>
 
               {/* Itinerary */}
+              {/*
               <Grid item size={12}>
                 <TealCard>
                   {tripData &&
@@ -406,6 +406,7 @@ const EditTrip = () => {
                   </Button>
                 </TealCard>
               </Grid>
+              */}
 
               {/* Inclusions */}
               <Grid item size={12}>

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -6,17 +6,27 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@emotion/react";
 import { TealCard } from "./EditTrip";
 import ImageUploadSection from "./AddItineraryComponents/ImageUploadSection";
+import { getItineraryById, editItinerary } from "../utils/api";
+
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+import { Box } from "lucide-react";
 
 const AddItineraryPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const tripId = location.state?.tripId; // Access data from state
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0); // Scroll to the top of the page
-  }, []);
+  const tripId = location.state?.tripId;
+  const itineraryId = location.state?.itineraryId;
+  const [loading, setLoading] = useState(!!itineraryId);
+  const [error, setError] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const [tripData, setTripData] = useState({
-    // tripId: "",
     tripId: tripId,
     lastUpdated: "",
     overview: {
@@ -70,6 +80,45 @@ const AddItineraryPage = () => {
     imageUrls: [],
   });
 
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
+
+  // Fetch itinerary if editing
+  useEffect(() => {
+    if(!itineraryId) return
+    console.log("useffetc called ==========>>>>>>>", itineraryId); // Debugging
+    const fetchItinerary = async () => {
+      if (itineraryId) {
+        setLoading(true);
+        try {
+          const data = await getItineraryById(itineraryId);
+          console.log("Fetched itinerary for editing:", data); // Debugging
+          // Handle not found or error message
+          if (!data || data.message?.includes("not found")) {
+            setError("No itinerary found for this trip. Please add one.");
+            setTripData({ ...tripData }); // Optionally reset or keep blank
+          } else {
+            // Unwrap data if backend returns {itinerary: {...}} or [{...}]
+            let itinerary = data;
+            if (data && Array.isArray(data) && data.length > 0) {
+              itinerary = data[0];
+            } else if (data && data.itinerary) {
+              itinerary = data.itinerary;
+            }
+            if (itinerary) setTripData(itinerary);
+          }
+        } catch (err) {
+          setError("Failed to fetch itinerary");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchItinerary();
+    // eslint-disable-next-line
+  }, [itineraryId]);
+
   const handleGoBack = () => {
     navigate(-1); // Navigate back to the previous page in the history stack
   };
@@ -90,21 +139,41 @@ const AddItineraryPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("/.netlify/functions/addItinerary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tripData),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        alert("Trip submitted successfully!");
-        // Optionally redirect or reset form
-        // navigate("/somewhere");
+      if (itineraryId) {
+        await editItinerary(itineraryId, tripData);
+        setSnackbar({
+          open: true,
+          message: "Itinerary updated successfully!",
+          severity: "success",
+        });
       } else {
-        alert("Error: " + (result.error || "Failed to submit trip."));
+        const response = await fetch("/.netlify/functions/addItinerary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tripData),
+        });
+        const result = await response.json();
+        if (response.ok) {
+          setSnackbar({
+            open: true,
+            message: "Trip submitted successfully!",
+            severity: "success",
+          });
+        } else {
+          setSnackbar({
+            open: true,
+            message: "Error: " + (result.error || "Failed to submit trip."),
+            severity: "error",
+          });
+        }
       }
+      setTimeout(() => navigate(-1), 1200); // Give user time to see the toast
     } catch (error) {
-      alert("Network error: " + error.message);
+      setSnackbar({
+        open: true,
+        message: "Failed to save itinerary",
+        severity: "error",
+      });
     }
   };
 
@@ -238,6 +307,33 @@ const AddItineraryPage = () => {
       >
         Go Back
       </Button>
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 200,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
+      {error && <Typography color="error">{error}</Typography>}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3500}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <form onSubmit={handleSubmit}>
         {/* Trip ID */}
         <TextField

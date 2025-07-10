@@ -9,7 +9,8 @@ exports.handler = async (event, context) => {
         };
     }
 
-    const { tripName, location, difficultyLevel, duration, price, activities, itinerary, inclusions, exclusions, imageUrls, rating, reviews, startDates, availability, coordinates } = JSON.parse(event.body);
+    // Remove 'itinerary' from the request body to enforce separation
+    const { tripName, location, difficultyLevel, duration, price, activities, inclusions, exclusions, imageUrls, rating, reviews, startDates, availability, coordinates } = JSON.parse(event.body);
 
     try {
         const db = await connectToDatabase(process.env.MONGO_URI);
@@ -22,7 +23,7 @@ exports.handler = async (event, context) => {
             duration,
             price,
             activities,
-            itinerary,
+            // itinerary, // REMOVED: Itineraries are managed separately
             inclusions,
             exclusions,
             imageUrls,

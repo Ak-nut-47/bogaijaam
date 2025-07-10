@@ -27,12 +27,26 @@ exports.handler = async (event, context) => {
             data.lastUpdated = new Date(data.lastUpdated);
         }
 
+        // Enforce only one itinerary per trip: delete any existing itinerary for this tripId
+        if (data.tripId) {
+            await collection.deleteMany({ tripId: data.tripId });
+        }
         const result = await collection.insertOne(data);
+        const itineraryId = result.insertedId;
+
+        // Update the corresponding trip to reference this itinerary
+        if (data.tripId) {
+            const tripsCollection = db.collection('tours');
+            await tripsCollection.updateOne(
+                { _id: new (require('mongodb').ObjectId)(data.tripId) },
+                { $set: { itineraryId: itineraryId.toString() } }
+            );
+        }
 
         return {
             statusCode: 201,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: result.insertedId })
+            body: JSON.stringify({ id: itineraryId })
         };
     } catch (error) {
         console.error('AddItinerary Error:', error);
