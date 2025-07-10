@@ -113,13 +113,16 @@ export const getItineraryById = async (itineraryId) => {
 // Edit itinerary by ID
 export const editItinerary = async (itineraryId, updatedData) => {
     try {
-        const response = await axios.put('/.netlify/functions/editItinerary', {
-            itineraryId,
-            ...updatedData
-        });
+        const payload = { itineraryId, ...updatedData };
+        console.log('[api.js] Sending to editItinerary:', payload);
+        const response = await axios.put('/.netlify/functions/editItinerary', payload);
+        console.log('[api.js] editItinerary response:', response.data);
         return response.data;
     } catch (error) {
-        console.error(`Failed to update itinerary with id: ${itineraryId}`, error);
+        console.error(`[api.js] Failed to update itinerary with id: ${itineraryId}`, error);
+        if (error.response) {
+            console.error('[api.js] editItinerary error response:', error.response.data);
+        }
         return null;
     }
 };

@@ -12,6 +12,9 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box } from "lucide-react";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const AddItineraryPage = () => {
   const location = useLocation();
@@ -86,7 +89,7 @@ const AddItineraryPage = () => {
 
   // Fetch itinerary if editing
   useEffect(() => {
-    if(!itineraryId) return
+    if (!itineraryId) return;
     console.log("useffetc called ==========>>>>>>>", itineraryId); // Debugging
     const fetchItinerary = async () => {
       if (itineraryId) {
@@ -140,7 +143,14 @@ const AddItineraryPage = () => {
     event.preventDefault();
     try {
       if (itineraryId) {
-        await editItinerary(itineraryId, tripData);
+        // Always use tripId from tripData (fetched itinerary), not from navigation state
+        const { _id, ...editPayload } = tripData; // remove _id if present
+        console.log("[AddItineraryPage] Submitting editItinerary with:", {
+          itineraryId,
+          editPayload,
+        });
+        const editResponse = await editItinerary(itineraryId, editPayload);
+        console.log("[AddItineraryPage] editItinerary response:", editResponse);
         setSnackbar({
           open: true,
           message: "Itinerary updated successfully!",
@@ -347,15 +357,19 @@ const AddItineraryPage = () => {
         />
 
         {/* Last Updated */}
-        <TextField
-          // label="Last Updated"
-          type="datetime-local"
-          name="lastUpdated"
-          value={tripData.lastUpdated}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DateTimePicker
+            label="Last Updated"
+            value={tripData.lastUpdated ? dayjs(tripData.lastUpdated) : null}
+            onChange={(newValue) =>
+              setTripData((prev) => ({
+                ...prev,
+                lastUpdated: newValue ? newValue.toISOString() : "",
+              }))
+            }
+            slotProps={{ textField: { fullWidth: true, margin: "normal" } }}
+          />
+        </LocalizationProvider>
 
         {/* Overview */}
         <Typography variant="h6" gutterBottom>

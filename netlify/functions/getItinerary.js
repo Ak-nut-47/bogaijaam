@@ -21,7 +21,9 @@ exports.handler = async (event, context) => {
                         body: JSON.stringify({ message: 'Invalid itineraryId' }),
                     };
                 }
-                itinerary = await itinerariesCollection.findOne({ _id: new ObjectId(itineraryId) });
+                const query = { _id: new ObjectId(itineraryId) };
+                console.log('[getItinerary] Query:', query);
+                itinerary = await itinerariesCollection.findOne(query);
             } catch (e) {
                 return {
                     statusCode: 400,

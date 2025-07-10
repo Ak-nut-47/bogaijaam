@@ -1,5 +1,5 @@
-// netlify/functions/editItinerary.js
 const connectToDatabase = require('./mongodb');
+const { ObjectId } = require('mongodb');
 
 exports.handler = async (event, context) => {
     if (event.httpMethod !== 'PUT') {
@@ -15,8 +15,10 @@ exports.handler = async (event, context) => {
         const collection = db.collection('itineraries');
 
         const data = JSON.parse(event.body);
-        const { itineraryId, ...updateFields } = data;
-        delete updateFields._id; // Prevent immutable _id update
+        const { itineraryId, _id, ...updateFields } = data;
+console.log('[editItinerary] itineraryId:', itineraryId, 'type:', typeof itineraryId);
+console.log('[editItinerary] ObjectId.isValid:', ObjectId.isValid(itineraryId));
+console.log('[editItinerary] updateFields:', updateFields);
 
         // Convert string dates to Date objects
         if (updateFields.dailySchedule) {
@@ -29,13 +31,16 @@ exports.handler = async (event, context) => {
             updateFields.lastUpdated = new Date(updateFields.lastUpdated);
         }
 
-        const result = await collection.findOneAndUpdate(
-            { _id: new (require('mongodb').ObjectId)(itineraryId) },
-            { $set: updateFields },
-            { returnDocument: 'after' }
-        );
+        const query = { _id: new ObjectId(itineraryId) };
+console.log('[editItinerary] Query:', query);
+const result = await collection.findOneAndUpdate(
+    query,
+    { $set: updateFields },
+    { returnDocument: 'after' }
+);
+console.log('[editItinerary] findOneAndUpdate result:', result);
 
-        if (!result.value) {
+        if (!result) {
             return {
                 statusCode: 404,
                 headers: { 'Content-Type': 'application/json' },
@@ -46,10 +51,10 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(result.value)
+            body: JSON.stringify(result)
         };
     } catch (error) {
-        console.error('EditItinerary Error:', error);
+        console.error('[editItinerary] Error:', error);
         return {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
