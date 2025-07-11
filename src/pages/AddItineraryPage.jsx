@@ -4,7 +4,6 @@ import { TextField, Button, Typography, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@emotion/react";
-import { TealCard } from "./EditTrip";
 import ImageUploadSection from "./AddItineraryComponents/ImageUploadSection";
 import { getItineraryById, editItinerary } from "../utils/api";
 
@@ -15,6 +14,14 @@ import { Box } from "lucide-react";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { styled } from "@mui/material/styles";
+
+export const TealCard = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: `0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12)`,
+  borderRadius: "8px",
+  paddingLeft: "10px",
+}));
 
 const AddItineraryPage = () => {
   const location = useLocation();
@@ -308,7 +315,7 @@ const AddItineraryPage = () => {
   return (
     <Paper elevation={3} style={{ padding: "20px" }}>
       <Typography variant="h4" gutterBottom>
-        Trip Details
+        Itinerary Details
       </Typography>
       <Button
         variant="contained"
@@ -1122,7 +1129,7 @@ const AddItineraryPage = () => {
 
         {/* Submit Button */}
         <Button variant="contained" color="primary" type="submit">
-          Submit Trip
+          Submit Itinerary
         </Button>
       </form>
     </Paper>

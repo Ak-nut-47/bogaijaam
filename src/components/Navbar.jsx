@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -17,7 +17,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import FlightIcon from "@mui/icons-material/Flight";
 import EventIcon from "@mui/icons-material/Event";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -36,9 +35,13 @@ import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import LoginIcon from "@mui/icons-material/Login";
 import SignInSignUpModal from "./SignInSignUpModal";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 const logo = require("../assets/logo.png");
+
 const Navbar = () => {
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,12 +102,14 @@ const Navbar = () => {
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
         </ListItem>
-        <ListItem button component={Link} to="/trips">
-          <ListItemIcon>
-            <FlightIcon />
-          </ListItemIcon>
-          <ListItemText primary="Trips" />
-        </ListItem>
+        {isAdmin && (
+          <ListItem button component={Link} to="/trips">
+            <ListItemIcon>
+              <ShieldCheck />
+            </ListItemIcon>
+            <ListItemText primary="Trips" />
+          </ListItem>
+        )}
         <ListItem button component={Link} to="/bookings">
           <ListItemIcon>
             <EventIcon />
@@ -255,8 +260,8 @@ const Navbar = () => {
         position="sticky"
         sx={{
           bgcolor: theme.palette.primary.main,
-          top: 0, // Ensures it sticks at the top
-          zIndex: 2, // Ensures it's above other content, you can adjust the value
+          top: 0,
+          zIndex: 2,
         }}
       >
         <Toolbar>
@@ -266,7 +271,7 @@ const Navbar = () => {
             style={{
               maxWidth: "55px",
               objectFit: "contain",
-              cursor: location.pathname === "/" ? "default" : "pointer", // Change pointer style
+              cursor: location.pathname === "/" ? "default" : "pointer",
             }}
             onClick={handleLogoClick}
           />
@@ -279,160 +284,221 @@ const Navbar = () => {
           >
             <MenuIcon />
           </IconButton>
+
+          {/* Desktop Navigation */}
           <Box
             sx={{
-              display: "flex",
+              display: { xs: "none", md: "flex" },
               alignItems: "center",
-              justifyContent: "space-between", // Space between items
-              width: "100%", // Full width
-              padding: 2, // Optional padding
-              flexDirection: { xs: "row-reverse", md: "row" },
+              flexGrow: 1,
+              justifyContent: "flex-end",
             }}
           >
-            <Box></Box>
-
-            <Box sx={{ display: { xs: "none", md: "block", ml: "auto" } }}>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/"
-                startIcon={<HomeIcon />}
-              >
-                Home
-              </Button>
-              <Button
-                color="inherit"
-                component={Link}
-                to="/dashboard"
-                startIcon={<DashboardIcon />}
-              >
-                Dashboard
-              </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/"
+              startIcon={<HomeIcon />}
+            >
+              Home
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/dashboard"
+              startIcon={<DashboardIcon />}
+            >
+              Dashboard
+            </Button>
+            {isAdmin && (
               <Button
                 color="inherit"
                 component={Link}
                 to="/trips"
-                startIcon={<FlightIcon />}
+                startIcon={<ShieldCheck />}
               >
-                Trips
+                Admin Panel
               </Button>
-              <Button
-                color="inherit"
+            )}
+            <Button
+              color="inherit"
+              component={Link}
+              to="/bookings"
+              startIcon={<EventIcon />}
+            >
+              Bookings
+            </Button>
+            <Button
+              color="inherit"
+              component={Link}
+              to="/upcoming-events"
+              startIcon={<CalendarTodayIcon />}
+            >
+              Upcoming Events
+            </Button>
+            <Button
+              color="inherit"
+              onClick={handleAdventureClick}
+              aria-controls="adventure-menu"
+              aria-haspopup="true"
+              startIcon={<HikingIcon />}
+            >
+              Adventure Programs{" "}
+              {Boolean(anchorEl) ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </Button>
+            <Menu
+              id="adventure-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleAdventureClose}
+            >
+              <MenuItem
+                onClick={handleAdventureClose}
                 component={Link}
-                to="/bookings"
-                startIcon={<EventIcon />}
+                to="/group-expeditions"
               >
-                Bookings
-              </Button>
-              <Button
-                color="inherit"
+                <GroupIcon sx={{ mr: 1 }} /> Group Expeditions
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
                 component={Link}
-                to="/upcoming-events"
-                startIcon={<CalendarTodayIcon />}
+                to="/educational-outings"
               >
-                Upcoming Events
-              </Button>
-              <Button
-                color="inherit"
-                onClick={handleAdventureClick}
-                aria-controls="adventure-menu"
-                aria-haspopup="true"
-                startIcon={<HikingIcon />}
+                <SchoolIcon sx={{ mr: 1 }} /> Educational Outings
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/outdoor-learning"
               >
-                Adventure Programs{" "}
-                {Boolean(anchorEl) ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </Button>
-              <Menu
-                id="adventure-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleAdventureClose}
+                <NatureIcon sx={{ mr: 1 }} /> Outdoor Learning
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/adventure-retreats"
               >
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/group-expeditions"
+                <CabinIcon sx={{ mr: 1 }} /> Adventure Retreats
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/field-trips"
+              >
+                <ExploreIcon sx={{ mr: 1 }} /> Field Trips
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/nature-camps"
+              >
+                <ForestIcon sx={{ mr: 1 }} /> Nature Camps
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/experiential-education"
+              >
+                <PublicIcon sx={{ mr: 1 }} /> Experiential Education
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/wilderness-excursions"
+              >
+                <TerrainIcon sx={{ mr: 1 }} /> Wilderness Excursions
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/educational-adventures"
+              >
+                <LandscapeIcon sx={{ mr: 1 }} /> Educational Adventures
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/outdoor-explorations"
+              >
+                <ExploreIcon sx={{ mr: 1 }} /> Outdoor Explorations
+              </MenuItem>
+              <MenuItem
+                onClick={handleAdventureClose}
+                component={Link}
+                to="/cave-exploration"
+              >
+                <HikingIcon sx={{ mr: 1 }} /> Cave Exploration
+              </MenuItem>
+            </Menu>
+
+            {/* Auth/User Actions */}
+            {isAuthenticated ? (
+              <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
+                <Button
+                  color="inherit"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: "none",
+                    cursor: "default",
+                    pr: 1,
+                    width: 40,
+                    height: 40,
+                    minWidth: 0,
+                    borderRadius: "50%",
+                    bgcolor: (theme) => theme.palette.grey[200],
+                    color: (theme) => theme.palette.primary.main,
+                    fontSize: 18,
+                  }}
+                  disableRipple
+                  disableFocusRipple
+                  startIcon={null}
                 >
-                  <GroupIcon sx={{ mr: 1 }} /> Group Expeditions
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/educational-outings"
+                  {user?.name ? (
+                    user.name
+                      .split(" ")
+                      .map((word) => word.charAt(0).toUpperCase())
+                      .join("")
+                      .slice(0, 2)
+                  ) : (
+                    <GroupIcon />
+                  )}
+                </Button>
+                <IconButton
+                  color="inherit"
+                  onClick={logout}
+                  sx={{ ml: 0.5 }}
+                  aria-label="Logout"
+                  title="Logout"
                 >
-                  <SchoolIcon sx={{ mr: 1 }} /> Educational Outings
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/outdoor-learning"
-                >
-                  <NatureIcon sx={{ mr: 1 }} /> Outdoor Learning
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/adventure-retreats"
-                >
-                  <CabinIcon sx={{ mr: 1 }} /> Adventure Retreats
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/field-trips"
-                >
-                  <ExploreIcon sx={{ mr: 1 }} /> Field Trips
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/nature-camps"
-                >
-                  <ForestIcon sx={{ mr: 1 }} /> Nature Camps
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/experiential-education"
-                >
-                  <PublicIcon sx={{ mr: 1 }} /> Experiential Education
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/wilderness-excursions"
-                >
-                  <TerrainIcon sx={{ mr: 1 }} /> Wilderness Excursions
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/educational-adventures"
-                >
-                  <LandscapeIcon sx={{ mr: 1 }} /> Educational Adventures
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/outdoor-explorations"
-                >
-                  <ExploreIcon sx={{ mr: 1 }} /> Outdoor Explorations
-                </MenuItem>
-                <MenuItem
-                  onClick={handleAdventureClose}
-                  component={Link}
-                  to="/cave-exploration"
-                >
-                  <HikingIcon sx={{ mr: 1 }} /> Cave Exploration
-                </MenuItem>
-              </Menu>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-log-out"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" x2="9" y1="12" y2="12" />
+                  </svg>
+                </IconButton>
+              </Box>
+            ) : (
               <Button
                 color="inherit"
                 onClick={handleOpen}
                 startIcon={<LoginIcon />}
-              ></Button>
-            </Box>
+                sx={{ ml: 2, fontWeight: 600 }}
+              >
+                Sign In / Up
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>

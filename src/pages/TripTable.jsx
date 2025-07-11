@@ -18,12 +18,17 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Paper,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
+import { Edit, Trash2, Plus } from "lucide-react"; // Lucide icons
+// Remove MUI icons
+// import EditIcon from "@mui/icons-material/Edit";
+// import DeleteIcon from "@mui/icons-material/Delete";
+// import AddIcon from "@mui/icons-material/Add";
 import { getTrips, deleteTrip, deleteItinerary } from "../utils/api";
+
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const TripTable = () => {
   const [trips, setTrips] = useState([]);
@@ -40,6 +45,8 @@ const TripTable = () => {
     onConfirm: null,
   });
   const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const isTablet = useMediaQuery("(max-width:900px)");
 
   // Fetch all trips when component loads
   useEffect(() => {
@@ -148,24 +155,40 @@ const TripTable = () => {
     {
       header: "Actions",
       id: "actions",
-      size: 150,
+      size: 180,
       Cell: ({ row }) => (
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            display: isMobile ? "block" : "flex",
+            gap: 1,
+            textAlign: isMobile ? "center" : "left",
+          }}
+        >
           <Tooltip title="Edit Trip">
-            <IconButton
+            <Button
+              variant="outlined"
               color="primary"
+              startIcon={<Edit size={18} />}
+              size={isMobile ? "medium" : "small"}
+              fullWidth={isMobile}
+              sx={{ mb: isMobile ? 1 : 0, fontWeight: 600, minWidth: 120 }}
               onClick={() => navigate(`/edit/${row.original._id}`)}
             >
-              <EditIcon />
-            </IconButton>
+              Edit Trip
+            </Button>
           </Tooltip>
           <Tooltip title="Delete Trip">
-            <IconButton
-              color="secondary"
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Trash2 size={18} />}
+              size={isMobile ? "medium" : "small"}
+              fullWidth={isMobile}
+              sx={{ fontWeight: 600, minWidth: 120 }}
               onClick={() => handleDelete(row.original._id)}
             >
-              <DeleteIcon />
-            </IconButton>
+              Delete Trip
+            </Button>
           </Tooltip>
         </Box>
       ),
@@ -177,13 +200,22 @@ const TripTable = () => {
       Cell: ({ row }) => {
         const trip = row.original;
         return (
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box
+            sx={{
+              display: isMobile ? "block" : "flex",
+              gap: 1,
+              textAlign: isMobile ? "center" : "left",
+            }}
+          >
             {!trip.itinerary ? (
               <Tooltip title="Add Itinerary">
                 <Button
                   variant="contained"
                   color="primary"
-                  startIcon={<AddIcon />}
+                  startIcon={<Plus size={18} />}
+                  size={isMobile ? "medium" : "small"}
+                  fullWidth={isMobile}
+                  sx={{ fontWeight: 600, minWidth: 150 }}
                   onClick={() =>
                     navigate("/add/itinerary", { state: { tripId: trip._id } })
                   }
@@ -197,7 +229,14 @@ const TripTable = () => {
                   <Button
                     variant="outlined"
                     color="primary"
-                    startIcon={<EditIcon />}
+                    startIcon={<Edit size={18} />}
+                    size={isMobile ? "medium" : "small"}
+                    fullWidth={isMobile}
+                    sx={{
+                      mb: isMobile ? 1 : 0,
+                      fontWeight: 600,
+                      minWidth: 150,
+                    }}
                     onClick={() =>
                       navigate("/add/itinerary", {
                         state: {
@@ -211,14 +250,34 @@ const TripTable = () => {
                   </Button>
                 </Tooltip>
                 <Tooltip title="Delete Itinerary">
-                  <IconButton
+                  {/* <IconButton
                     color="error"
+                    size={isMobile ? "medium" : "small"}
+                    sx={{ ml: isMobile ? 0 : 1 }}
                     onClick={() =>
                       handleDeleteItinerary(trip.itinerary._id, trip._id)
                     }
                   >
-                    <DeleteIcon />
-                  </IconButton>
+                    <Trash2 size={18} />
+                  </IconButton> */}
+                  <Button
+                    variant="outlined" // Using outlined variant like the edit button
+                    color="error" // Keep the error color for distinction
+                    startIcon={<Trash2 size={18} />} // Add the trash icon as a startIcon
+                    size={isMobile ? "medium" : "small"}
+                    fullWidth={isMobile} // Match fullWidth behavior for mobile
+                    sx={{
+                      mb: isMobile ? 1 : 0,
+                      fontWeight: 600,
+                      minWidth: 150,
+                      ml: isMobile ? 0 : 1,
+                    }} // Adjust margin-left for desktop
+                    onClick={() =>
+                      handleDeleteItinerary(trip.itinerary._id, trip._id)
+                    }
+                  >
+                    Delete Itinerary
+                  </Button>
                 </Tooltip>
               </>
             )}
@@ -236,33 +295,67 @@ const TripTable = () => {
   });
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        sx={{ mb: 2, mr: 5 }}
-        onClick={() => navigate("/add")}
-        disabled={loading}
+    <Box sx={{ p: isMobile ? 1 : 4, pb: 8 }}>
+      {/* Admin Panel Header */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: isMobile ? 2 : 4,
+        }}
       >
-        Add Trip
-      </Button>
-      {loading ? (
-        <Box sx={{ mt: 4 }}>
-          {/* Skeleton Table: 5 rows, 8 columns */}
-          {[...Array(5)].map((_, rowIdx) => (
-            <Box key={rowIdx} sx={{ display: "flex", mb: 1 }}>
-              {[...Array(8)].map((_, colIdx) => (
-                <Box key={colIdx} sx={{ flex: 1, mr: 2 }}>
-                  <Skeleton variant="rectangular" height={40} />
-                </Box>
-              ))}
-            </Box>
-          ))}
+        <Box sx={{ flex: 1 }} />
+        <Box sx={{ flex: 2, textAlign: "center" }}>
+          <Box
+            sx={{
+              fontWeight: 700,
+              fontSize: isMobile ? 22 : 32,
+              letterSpacing: 1,
+              color: "primary.main",
+            }}
+          >
+            Admin Panel
+          </Box>
         </Box>
-      ) : (
-        <MaterialReactTable table={table} />
-      )}
+        <Box sx={{ flex: 1, textAlign: "right" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Plus size={20} />}
+            sx={{
+              mb: isMobile ? 1 : 2,
+              minWidth: 120,
+              fontWeight: 600,
+              boxShadow: 2,
+            }}
+            onClick={() => navigate("/add")}
+            disabled={loading}
+          >
+            Add Trip
+          </Button>
+        </Box>
+      </Box>
+      <Paper elevation={3} sx={{ p: isMobile ? 0.5 : 3, overflow: "auto" }}>
+        {loading ? (
+          <Box sx={{ mt: 4 }}>
+            {/* Skeleton Table: 5 rows, 8 columns */}
+            {[...Array(5)].map((_, rowIdx) => (
+              <Box key={rowIdx} sx={{ display: "flex", mb: 1 }}>
+                {[...Array(8)].map((_, colIdx) => (
+                  <Box key={colIdx} sx={{ flex: 1, mr: 2 }}>
+                    <Skeleton variant="rectangular" height={40} />
+                  </Box>
+                ))}
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Box sx={{ minWidth: isMobile ? 700 : 0 }}>
+            <MaterialReactTable table={table} />
+          </Box>
+        )}
+      </Paper>
       {/* Confirmation Dialog */}
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle>{dialog.title}</DialogTitle>

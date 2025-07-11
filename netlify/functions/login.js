@@ -11,25 +11,33 @@ exports.handler = async (event, context) => {
             return { statusCode: 405, body: 'Method Not Allowed' };
         }
 
-        const { email, password } = JSON.parse(event.body);
+        let { email, password } = JSON.parse(event.body);
 
         // Basic validation
         if (!email || !password) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required.' }) };
         }
 
-        // Convert email to lowercase for case-insensitive comparison
-        const lowercaseEmail = email.toLowerCase();
+        email = email.trim().toLowerCase();
 
         // Check if the user exists
-        const user = await usersCollection.findOne({ email: lowercaseEmail });
+        const user = await usersCollection.findOne({ email });
 
         if (!user) {
             return { statusCode: 400, body: JSON.stringify({ error: 'User not found.' }) };
         }
 
-        // Verify the password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        // Double-hash verification: compare password to passwordFirstHash, then passwordFirstHash to passwordDoubleHash
+        let isPasswordValid = false;
+        if (user.passwordFirstHash && user.passwordDoubleHash) {
+            const firstHashValid = await bcrypt.compare(password, user.passwordFirstHash);
+            if (firstHashValid) {
+                isPasswordValid = await bcrypt.compare(user.passwordFirstHash, user.passwordDoubleHash);
+            }
+        } else if (user.password) {
+            // Fallback for legacy users with only single hash
+            isPasswordValid = await bcrypt.compare(password, user.password);
+        }
         if (!isPasswordValid) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Incorrect password.' }) };
         }

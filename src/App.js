@@ -5,8 +5,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import Navbar from './components/Navbar';
 import HomePage from "./pages/Homepage";
 import TripTable from "./pages/TripTable";
-import EditTrip from "./pages/EditTrip";
-import AddTrip from "./pages/AddTrip";
+import TripForm from "./pages/TripForm";
 import theme from './theme';
 import ItineraryPage from './pages/ItineraryPage';
 import AddItineraryPage from './pages/AddItineraryPage';
@@ -37,7 +36,7 @@ function App() {
             path="/edit/:id"
             element={
               <ProtectedRoute requiredRole="admin">
-                <EditTrip />
+                <TripForm />
               </ProtectedRoute>
             }
           />
@@ -45,7 +44,7 @@ function App() {
             path="/add"
             element={
               <ProtectedRoute requiredRole="admin">
-                <AddTrip />
+                <TripForm />
               </ProtectedRoute>
             }
           />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   Dialog,
   DialogTitle,
@@ -19,6 +20,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const SignInSignUpModal = ({ open, handleClose }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -77,8 +79,13 @@ const SignInSignUpModal = ({ open, handleClose }) => {
       if (token) {
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
-        localStorage.setItem("token", token);
-        localStorage.setItem("role", userRole);
+        const userName = decodedToken.username || decodedToken.name || email.split('@')[0];
+        login({
+          name: userName,
+          email,
+          role: userRole,
+          token,
+        });
       }
       setSnackbarMessage(isSignup ? "Signup successful!" : "Login successful!");
       setSnackbarSeverity("success");
@@ -139,25 +146,33 @@ const SignInSignUpModal = ({ open, handleClose }) => {
   }, [open]);
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3, p: { xs: 1, sm: 2 } } }}>
+
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between" }}>
         {isSignup ? "Sign Up" : "Login"}
         <IconButton onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ p: { xs: 1, sm: 3 } }}>
         {showReset ? (
           <form onSubmit={handleResetRequest}>
             <TextField
               label="Email"
               value={resetEmail}
               onChange={(e) => setResetEmail(e.target.value)}
-              type="email"
+              type={showPassword ? "text" : "email"}
               fullWidth
               margin="normal"
               required
               disabled={resetLoading}
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={handleTogglePasswordVisibility} tabIndex={-1}>
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                ),
+              }}
             />
             {resetError && <Alert severity="error">{resetError}</Alert>}
             <DialogActions>
@@ -225,33 +240,41 @@ const SignInSignUpModal = ({ open, handleClose }) => {
                 <CircularProgress /> Loading...
               </DialogContentText>
             )}
-            <DialogActions>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                disabled={isLoading}
-              >
-                {isSignup ? "Sign Up" : "Login"}
-              </Button>
-              <Button onClick={() => setIsSignup(!isSignup)}>
-                {isSignup
-                  ? "Already have an account? Login"
-                  : "Don't have an account? Sign Up"}
-              </Button>
-            </DialogActions>
+            <DialogActions sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
+  <Button
+    type="submit"
+    variant="contained"
+    color="primary"
+    disabled={isLoading}
+    fullWidth={true}
+    sx={{ py: 1.2, fontWeight: 600 }}
+  >
+    {isSignup ? "Sign Up" : "Login"}
+  </Button>
+  <Button
+    onClick={() => setIsSignup(!isSignup)}
+    sx={{ mt: { xs: 1, sm: 0 }, fontWeight: 500 }}
+    fullWidth={true}
+    variant="text"
+  >
+    {isSignup
+      ? "Already have an account? Login"
+      : "Don't have an account? Sign Up"}
+  </Button>
+</DialogActions>
             <Button
-              onClick={() => {
-                setShowReset(true);
-                setResetEmail("");
-                setResetSent(false);
-                setResetError("");
-              }}
-              color="secondary"
-              sx={{ mt: 1 }}
-            >
-              Forgot password?
-            </Button>
+  onClick={() => {
+    setShowReset(true);
+    setResetEmail("");
+    setResetSent(false);
+    setResetError("");
+  }}
+  color="secondary"
+  sx={{ mt: 1, fontWeight: 500 }}
+  fullWidth={true}
+>
+  Forgot password?
+</Button>
           </form>
         )}
       </DialogContent>

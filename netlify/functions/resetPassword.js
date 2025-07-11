@@ -1,6 +1,15 @@
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const connectToDatabase = require('./mongodb');
+
+function validatePasswordStrength(password) {
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const isValidLength = password.length >= 8 && password.length <= 20;
+  return hasUpperCase && hasLowerCase && hasNumber && isValidLength;
+}
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -11,7 +20,8 @@ exports.handler = async (event) => {
         };
     }
 
-    const { email, newPassword, token } = JSON.parse(event.body);
+    let { email, newPassword, token } = JSON.parse(event.body);
+    if (email) email = email.trim().toLowerCase();
 
     // If only email is provided, send reset link
     if (email && !newPassword && !token) {
@@ -67,6 +77,13 @@ exports.handler = async (event) => {
     // If token and newPassword are provided, reset password
     if (email && newPassword && token) {
         try {
+            if (!validatePasswordStrength(newPassword)) {
+                return {
+                    statusCode: 400,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Password must be 8-20 characters long and include uppercase, lowercase, and a number.' })
+                };
+            }
             const db = await connectToDatabase(process.env.MONGODB_URI);
             const users = db.collection('users');
             const user = await users.findOne({ email, resetToken: token });
@@ -77,9 +94,12 @@ exports.handler = async (event) => {
                     body: JSON.stringify({ error: 'Invalid or expired token' })
                 };
             }
+            const saltRounds = 10;
+            const firstHash = await bcrypt.hash(newPassword, saltRounds);
+            const doubleHashedPassword = await bcrypt.hash(firstHash, saltRounds);
             await users.updateOne(
                 { email },
-                { $set: { password: newPassword }, $unset: { resetToken: '', resetTokenExpiry: '' } }
+                { $set: { passwordFirstHash: firstHash, passwordDoubleHash: doubleHashedPassword }, $unset: { resetToken: '', resetTokenExpiry: '' } }
             );
             // Optionally: send confirmation email
             try {
