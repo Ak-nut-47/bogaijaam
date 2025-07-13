@@ -30,10 +30,18 @@ exports.handler = async (event, context) => {
             const trips = await tripsCollection.find({}).toArray();
             const itinerariesCollection = db.collection('itineraries');
 
+            // Fetch all itineraries in a single query
+            const itineraries = await itinerariesCollection.find({}).toArray();
+
+            // Build a map of tripId -> itinerary
+            const itineraryMap = {};
+            for (const itinerary of itineraries) {
+                itineraryMap[itinerary.tripId] = itinerary;
+            }
+
             // Attach itinerary to each trip
-            for (let trip of trips) {
-                const itinerary = await itinerariesCollection.findOne({ tripId: trip._id.toString() });
-                trip.itinerary = itinerary || null;
+            for (const trip of trips) {
+                trip.itinerary = itineraryMap[trip._id.toString()] || null;
             }
 
             return {

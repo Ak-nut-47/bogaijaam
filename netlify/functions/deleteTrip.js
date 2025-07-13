@@ -1,4 +1,3 @@
-// netlify/functions/deleteTrip.js
 const connectToDatabase = require('./mongodb');
 const { ObjectId } = require('mongodb');
 
@@ -12,15 +11,25 @@ exports.handler = async (event, context) => {
 
     const { id } = JSON.parse(event.body);
 
+    if (!id) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ message: 'Trip ID is required' }),
+        };
+    }
+
     try {
         const db = await connectToDatabase(process.env.MONGO_URI);
         const tripsCollection = db.collection('trips');
 
-        const result = await tripsCollection.deleteOne({ _id: ObjectId(id) });
+        const result = await tripsCollection.deleteOne({ _id: new ObjectId(id) });
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: 'Trip deleted successfully', result }),
+            body: JSON.stringify({
+                message: result.deletedCount > 0 ? 'Trip deleted successfully' : 'Trip not found',
+                result
+            }),
         };
     } catch (error) {
         return {

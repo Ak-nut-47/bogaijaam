@@ -21,16 +21,17 @@ import {
   Paper,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Edit, Trash2, Plus } from "lucide-react"; // Lucide icons
+import { Edit, Trash2, Plus, MessageCircleQuestion } from "lucide-react"; // Lucide icons
 // Remove MUI icons
 // import EditIcon from "@mui/icons-material/Edit";
 // import DeleteIcon from "@mui/icons-material/Delete";
 // import AddIcon from "@mui/icons-material/Add";
 import { getTrips, deleteTrip, deleteItinerary } from "../utils/api";
-
+import { useAuth } from "../context/AuthContext";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 const TripTable = () => {
+  const { isAuthenticated, isLoading } = useAuth();
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -48,19 +49,16 @@ const TripTable = () => {
   const isMobile = useMediaQuery("(max-width:600px)");
   const isTablet = useMediaQuery("(max-width:900px)");
 
+  // Redirect to home if user logs out
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
   // Fetch all trips when component loads
   useEffect(() => {
     fetchTrips();
-    // Re-fetch when tab becomes visible (user navigates back)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchTrips();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
     // eslint-disable-next-line
   }, []);
 
@@ -333,6 +331,23 @@ const TripTable = () => {
             disabled={loading}
           >
             Add Trip
+          </Button>
+        </Box>
+        <Box sx={{ flex: 1, textAlign: "right" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<MessageCircleQuestion size={20} />}
+            sx={{
+              mb: isMobile ? 1 : 2,
+              minWidth: 120,
+              fontWeight: 600,
+              boxShadow: 2,
+            }}
+            onClick={() => navigate("/admin/contact-queries")}
+            disabled={loading}
+          >
+            View Queries
           </Button>
         </Box>
       </Box>

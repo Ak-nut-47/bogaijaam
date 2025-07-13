@@ -8,11 +8,14 @@ import {
   Skeleton,
   useTheme,
   useMediaQuery,
+  Button,
 } from "@mui/material";
 import TripCard from "../components/TripCard";
 import { getTrips } from "../utils/api";
 import SwiperCarousel from "../components/SwiperCarousel/SwiperCarousel";
 import CampsiteHighlight from "../components/CampsiteHighlight";
+import Footer from "../components/Footer";
+import ContactForm from "../components/ContactForm";
 
 const HomePage = () => {
   const [trips, setTrips] = useState([]);
@@ -63,40 +66,70 @@ const HomePage = () => {
     ));
   };
 
+  const [contactOpen, setContactOpen] = useState(false);
+
   return (
-    <Container sx={{ py: 5 }}>
-      <Typography variant="h1" gutterBottom align="center" color="primary">
-        Welcome to Bogai Jaam Adventure Travels
-      </Typography>
-      <Typography variant="body1" paragraph align="center" color="text.primary">
-        Bogai Jaam offers the best adventure trips in the most exotic locations
-        like Dzukou Valley, Haflong, and Mawryngkhang. Join us for thrilling
-        experiences!
-      </Typography>
-      <SwiperCarousel />
-      <CampsiteHighlight />
-      <Box sx={{ mt: 5 }}>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: isMobile
-              ? "1fr"
-              : "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: 3,
-          }}
+    <>
+      <Container sx={{ py: 5 }}>
+        <Typography variant="h1" gutterBottom align="center" color="primary">
+          Welcome to Bogai Jaam Adventure Travels
+        </Typography>
+        <Typography
+          variant="body1"
+          paragraph
+          align="center"
+          color="text.primary"
         >
-          {loading ? (
-            renderSkeletonCards()
-          ) : trips.length > 0 ? (
-            trips.map((trip) => <TripCard key={trip._id} trip={trip} />)
-          ) : (
-            <Typography variant="body1" color="textSecondary" align="center">
-              No trips available at the moment.
-            </Typography>
-          )}
+          Bogai Jaam offers the best adventure trips in the most exotic
+          locations like Dzukou Valley, Haflong, and Mawryngkhang. Join us for
+          thrilling experiences!
+        </Typography>
+        <SwiperCarousel />
+        <CampsiteHighlight />
+        <Box sx={{ mt: 5 }}>
+          <Box>
+            <Box sx={{ width: "100%" }}>
+              <Box sx={{ flexGrow: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 3,
+                    justifyContent: "center",
+                  }}
+                >
+                  {loading ? (
+                    renderSkeletonCards()
+                  ) : trips.length > 0 ? (
+                    trips.map((trip) => (
+                      <Box
+                        key={trip._id}
+                        sx={{
+                          width: { xs: "100%", sm: "48%", md: "31%" },
+                          display: "flex",
+                        }}
+                      >
+                        <TripCard trip={trip} />
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      color="textSecondary"
+                      align="center"
+                      sx={{ width: "100%" }}
+                    >
+                      No trips available at the moment.
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

@@ -1,6 +1,25 @@
 // src/utils/api.js
 import axios from 'axios';
 
+// Send contact query
+export const sendContactQuery = async (data) => {
+  return axios.post('/.netlify/functions/contact', data);
+};
+
+// Get all contact queries (admin)
+export const getContactQueries = async () => {
+  const response = await axios.get('/.netlify/functions/contactAdmin');
+  return response.data;
+};
+
+// Delete a contact query by ID (admin)
+export const deleteContactQuery = async (id) => {
+  const response = await axios.delete('/.netlify/functions/contactAdmin', {
+    data: { id },
+  });
+  return response.data;
+};
+
 // Fetch all trips
 export const getTrips = async () => {
     // Try to get cached trips from sessionStorage

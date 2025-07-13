@@ -12,6 +12,7 @@ import AddItineraryPage from './pages/AddItineraryPage';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ContactAdminPage from "./pages/ContactAdminPage";
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
             }
           />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/admin/contact-queries"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ContactAdminPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </ThemeProvider>
