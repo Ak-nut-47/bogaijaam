@@ -83,12 +83,13 @@ const Navbar = () => {
   const handleClose = () => setOpen(false);
 
   const drawerItems = (
-    <Box
-      sx={{ width: 250 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
+  <Box
+    sx={{ width: 250, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+    role="presentation"
+    onClick={toggleDrawer(false)}
+    onKeyDown={toggleDrawer(false)}
+  >
+    <div>
       <List>
         <ListItem button component={Link} to="/">
           <ListItemIcon>
@@ -107,7 +108,7 @@ const Navbar = () => {
             <ListItemIcon>
               <ShieldCheck />
             </ListItemIcon>
-            <ListItemText primary="Trips" />
+            <ListItemText primary="Admin Panel" />
           </ListItem>
         )}
         <ListItem button component={Link} to="/bookings">
@@ -251,8 +252,60 @@ const Navbar = () => {
           </List>
         </Collapse>
       </List>
+    </div>
+    {/* Auth/User Actions at bottom */}
+    <Box sx={{ p: 2, borderTop: '1px solid #eee' }}>
+      {isAuthenticated ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Button
+            color="inherit"
+            sx={{ fontWeight: 600, textTransform: 'none', cursor: 'default', pr: 1, width: 40, height: 40, minWidth: 0, borderRadius: '50%', bgcolor: (theme) => theme.palette.grey[200], color: (theme) => theme.palette.primary.main, fontSize: 18 }}
+            disableRipple
+            disableFocusRipple
+            startIcon={null}
+          >
+            {user?.name
+              ? user.name.split(' ').map((word) => word.charAt(0).toUpperCase()).join('').slice(0, 2)
+              : <GroupIcon />}
+          </Button>
+          <IconButton
+            color="inherit"
+            onClick={logout}
+            aria-label="Logout"
+            title="Logout"
+            size="large"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-log-out"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" x2="9" y1="12" y2="12" />
+            </svg>
+          </IconButton>
+        </Box>
+      ) : (
+        <Button
+          color="inherit"
+          onClick={handleOpen}
+          startIcon={<LoginIcon />}
+          sx={{ mt: 1, fontWeight: 600, width: '100%' }}
+        >
+          Sign In / Up
+        </Button>
+      )}
     </Box>
-  );
+  </Box>
+);
 
   return (
     <>

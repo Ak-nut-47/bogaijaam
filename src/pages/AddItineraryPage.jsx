@@ -107,7 +107,7 @@ const AddItineraryPage = () => {
           // Handle not found or error message
           if (!data || data.message?.includes("not found")) {
             setError("No itinerary found for this trip. Please add one.");
-            setTripData({ ...tripData }); // Optionally reset or keep blank
+            // setTripData({ ...tripData }); // Removed to prevent unnecessary re-render
           } else {
             // Unwrap data if backend returns {itinerary: {...}} or [{...}]
             let itinerary = data;
